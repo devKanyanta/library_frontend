@@ -26,25 +26,28 @@ class AuthService {
         })
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         if (response.headers['content-type']?.contains('application/json') == true) {
           // Response is JSON, decode it
           final jsonResponse = jsonDecode(response.body);
-          return jsonResponse['message'] ?? 'SignUp successful';
+          return jsonResponse['message'] ?? 'Account created successfully';
         } else {
           // Response is plain text, try to parse it manually (adjust parsing logic as needed)
           final plainTextResponse = response.body;
-          // ... your parsing logic for plain text response
           return plainTextResponse;
         }
       } else {
         // Handle specific error codes or return a generic error message
         if (response.statusCode == 401) {
-          return Future.error('Unauthorized');
+          return Future.error('Unauthorized: Invalid credentials');
         } else if (response.statusCode == 404) {
-          return Future.error('Not found');
+          return Future.error('Not found: Endpoint does not exist');
+        } else if (response.statusCode == 409) {
+          return Future.error('Conflict: The account already exists');
+        } else if (response.statusCode == 400) {
+          return Future.error('Bad Request: Invalid data');
         } else {
-          return Future.error('Login failed with status code: ${response.statusCode}');
+          return Future.error('Failed with status code: ${response.statusCode}');
         }
       }
     } catch (error) {
@@ -71,28 +74,25 @@ class AuthService {
       print('Response status code: ${response.statusCode}');
       print('Response headers: ${response.headers}');
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         if (response.headers['content-type']?.contains('application/json') == true) {
           // Response is JSON, decode it
           final jsonResponse = jsonDecode(response.body);
-          return jsonResponse['message'] ?? 'Account created successfully';
+          return jsonResponse['message'] ?? 'Login successful';
         } else {
           // Response is plain text, try to parse it manually (adjust parsing logic as needed)
           final plainTextResponse = response.body;
+          // ... your parsing logic for plain text response
           return plainTextResponse;
         }
       } else {
         // Handle specific error codes or return a generic error message
         if (response.statusCode == 401) {
-          return Future.error('Unauthorized: Invalid credentials');
+          return Future.error('Unauthorized');
         } else if (response.statusCode == 404) {
-          return Future.error('Not found: Endpoint does not exist');
-        } else if (response.statusCode == 409) {
-          return Future.error('Conflict: The account already exists');
-        } else if (response.statusCode == 400) {
-          return Future.error('Bad Request: Invalid data');
+          return Future.error('Not found');
         } else {
-          return Future.error('Failed with status code: ${response.statusCode}');
+          return Future.error('Login failed with status code: ${response.statusCode}');
         }
       }
     } catch (error) {
