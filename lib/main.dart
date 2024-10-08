@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:library_web/pages/home.dart';
 import 'package:library_web/services/auth_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,11 +17,19 @@ class MyApp extends StatelessWidget {
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) => LoginPage(),
+          builder: (context, state) => route(),
         ),
         GoRoute(
           path: '/sign-up',
           builder: (context, state) => SignUpPage(),
+        ),
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => HomePage(),
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => Login(),
         ),
       ],
     );
@@ -32,7 +42,45 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatelessWidget {
+class route extends StatefulWidget {
+  const route({super.key});
+
+  @override
+  State<route> createState() => _routeState();
+}
+
+class _routeState extends State<route> {
+
+  void checkAuth() async {
+    // Save email and user type to browser cache
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if(prefs.getString('user_id') != null) {
+      context.go('/home');
+    }else{
+      context.go('/login');
+    }
+  }
+
+  @override
+  void initState() {
+    checkAuth();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+
+class Login extends StatefulWidget {
+  const Login({super.key});
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String? email;
@@ -55,8 +103,8 @@ class LoginPage extends StatelessWidget {
                   width: 700,
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Colors.blueGrey.withAlpha(100),
-                    borderRadius: BorderRadius.circular(5.0)
+                      color: Colors.blueGrey.withAlpha(100),
+                      borderRadius: BorderRadius.circular(5.0)
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,9 +112,9 @@ class LoginPage extends StatelessWidget {
                       const Text(
                         "LogIn",
                         style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20
                         ),
                       ),
                       const SizedBox(
@@ -104,6 +152,8 @@ class LoginPage extends StatelessWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(loginResponse)),
                             );
+
+                            context.go('/home');
                           } catch (e) {
                             // Show error message in a SnackBar
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -129,6 +179,7 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
+
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -259,6 +310,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(loginResponse)),
                     );
+
+                    context.go('/home');
                   } catch (e) {
                     // Show error message in a SnackBar
                     ScaffoldMessenger.of(context).showSnackBar(

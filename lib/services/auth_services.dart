@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthService {
+class AuthService{
   static const String baseUrl = 'http://localhost:3000'; // Replace with your actual backend URL
 
   // Register a new user
   Future<String> registerUser(String id, String firstName, String lastName, String email, String phoneNumber, String role, String password) async{
     final url = Uri.parse('$baseUrl/users/register');
+    // Save email and user type to browser cache
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     try{
       final response = await http.post(
@@ -30,10 +33,14 @@ class AuthService {
         if (response.headers['content-type']?.contains('application/json') == true) {
           // Response is JSON, decode it
           final jsonResponse = jsonDecode(response.body);
+          print("response is: ${response.body}");
+          prefs.setString('email', email);
           return jsonResponse['message'] ?? 'Account created successfully';
         } else {
           // Response is plain text, try to parse it manually (adjust parsing logic as needed)
           final plainTextResponse = response.body;
+          print("response is: ${response.body}");
+          prefs.setString('email', email);
           return plainTextResponse;
         }
       } else {
@@ -59,6 +66,8 @@ class AuthService {
   // Log in an existing user
   Future<String> loginUser(String email, String password) async {
     final url = Uri.parse('$baseUrl/users/login');
+    // Save email and user type to browser cache
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     try {
       final response = await http.post(
@@ -78,11 +87,15 @@ class AuthService {
         if (response.headers['content-type']?.contains('application/json') == true) {
           // Response is JSON, decode it
           final jsonResponse = jsonDecode(response.body);
+          print("response is: ${response.body}");
+          prefs.setString('user_id', jsonResponse['user_id'].toString());
           return jsonResponse['message'] ?? 'Login successful';
         } else {
           // Response is plain text, try to parse it manually (adjust parsing logic as needed)
           final plainTextResponse = response.body;
           // ... your parsing logic for plain text response
+          print("response is: ${response.body}");
+          prefs.setString('user_id', email);
           return plainTextResponse;
         }
       } else {
