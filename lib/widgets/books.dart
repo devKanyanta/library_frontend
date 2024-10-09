@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:library_web/widgets/add_book.dart';
+import 'package:library_web/widgets/view_books.dart';
 
 class Books extends StatefulWidget {
   const Books({super.key});
@@ -11,6 +13,7 @@ class Books extends StatefulWidget {
 class _BooksState extends State<Books> {
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
+  bool addBook = false;
 
   void _performSearch(String query) {
     setState(() {
@@ -65,6 +68,25 @@ class _BooksState extends State<Books> {
               const SizedBox(
                 width: 16,
               ),
+              addBook ? ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red, // Set the background color of the button
+                  foregroundColor: Colors.white, // Set the text (foreground) color
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20), // Optional: Adjust padding
+                ),
+                onPressed: (){
+                  setState(() {
+                    addBook = false;
+                  });
+                },
+                child: const Text(
+                  'Close Form',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white
+                  ),
+                ),
+              ) :
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue, // Set the background color of the button
@@ -72,19 +94,21 @@ class _BooksState extends State<Books> {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20), // Optional: Adjust padding
                 ),
                 onPressed: (){
-
+                  setState(() {
+                    addBook = true;
+                  });
                 },
                 child: const Text(
                   'Add Book',
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white
                   ),
                 ),
               )
             ],
           ),
-          Expanded(child: AddBook())
+          addBook ? Expanded(child: AddBook()) : ViewBooks()
         ],
       ),
     );
