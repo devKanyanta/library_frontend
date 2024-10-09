@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:library_web/widgets/books.dart';
+import 'package:library_web/widgets/students.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -210,7 +211,7 @@ class _DesktopViewState extends State<DesktopView> {
       case 'Books':
         return Books();
       case 'Students':
-        return Text('Partners Page Content', style: TextStyle(fontSize: 24));
+        return Students();
       case 'Loans':
         return Text('Cluster Page Content', style: TextStyle(fontSize: 24));
       case 'Fines':
