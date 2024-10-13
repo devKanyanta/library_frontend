@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:library_web/pages/home.dart';
 import 'package:library_web/services/auth_services.dart';
+import 'package:library_web/utils/colors.dart';
+import 'package:library_web/widgets/email_input_field.dart';
+import 'package:library_web/widgets/id_input.dart';
+import 'package:library_web/widgets/last_name.dart';
+import 'package:library_web/widgets/name_input_field.dart';
+import 'package:library_web/widgets/password_input_field.dart';
+import 'package:library_web/widgets/phone_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -81,17 +88,17 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   String? email;
   String? password;
   String? response;
+  bool isLogin = false;
 
   final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.lightBackground,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -99,79 +106,130 @@ class _LoginState extends State<Login> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                  height: 600,
-                  width: 700,
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                      color: Colors.blueGrey.withAlpha(100),
-                      borderRadius: BorderRadius.circular(5.0)
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "LogIn",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20
+              width: 650,
+              height: 454,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 0.5,
+                      blurRadius: 5,
+                      offset: const Offset(2, 1),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 219,
+                      height: 454,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(
+                              'https://images.unsplash.com/photo-1521790945508-bf2a36314e85?q=80&w=1934&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      TextField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(25),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Library Management System",
+                              style: TextStyle(
+                                  color: AppColors.blueText,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              "Create an Account",
+                              style: TextStyle(
+                                  color: AppColors.blueGrey,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w200),
+                            ),
+                            const SizedBox(
+                              height: 16,
+                            ),
+                            EmailInput(
+                              hintText: 'Email',
+                              onChanged: (value){
+                                email = value;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            PasswordInput(
+                              hintText: 'Password',
+                              onChanged: (value) {
+                                password = value;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            isLogin ? const CircularProgressIndicator() : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                backgroundColor: AppColors.blueButton,
+                                splashFactory: InkRipple.splashFactory,
+                              ),
+                              onPressed: () async {
+                                setState(() {
+                                  isLogin = true;
+                                });
+
+                                try {
+                                  print("email: $email and pass: $password");
+                                  // Call loginUser and wait for the result
+                                  String loginResponse = await _authService.loginUser(email!, password!);
+                                  response = loginResponse;
+
+                                  // Show success message in a SnackBar
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(loginResponse)),
+                                  );
+
+                                  context.go('/home');
+                                } catch (e) {
+                                  // Show error message in a SnackBar
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Error: $e")),
+                                  );
+                                }
+                              },
+                              child: const Text(
+                                  'Login',
+                                style: TextStyle(
+                                  color: Colors.white
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextButton(
+                              onPressed: () {
+                                context.go('/sign-up');
+                              },
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Colors.white),
+                              child: const Text(
+                                "Don'\t have an account? Log In.",
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.blueAccent),
+                              ),
+                            )
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _passwordController,
-                        decoration: const InputDecoration(
-                          labelText: 'Password',
-                          border: OutlineInputBorder(),
-                        ),
-                        obscureText: true,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () async {
-                          email = _emailController.text;
-                          password = _passwordController.text;
-
-                          try {
-                            print("email: $email and pass: $password");
-                            // Call loginUser and wait for the result
-                            String loginResponse = await _authService.loginUser(email!, password!);
-                            response = loginResponse;
-
-                            // Show success message in a SnackBar
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(loginResponse)),
-                            );
-
-                            context.go('/home');
-                          } catch (e) {
-                            // Show error message in a SnackBar
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Error: $e")),
-                            );
-                          }
-                        },
-                        child: const Text('Login'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Navigate to Sign Up page
-                          context.go('/sign-up');
-                        },
-                        child: const Text('Don’t have an account? Sign Up'),
-                      ),
-                    ],
-                  ))
+                    )
+                  ],
+                ),
+              )
             ],
           ),
         ),
@@ -189,147 +247,346 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final TextEditingController _idController = TextEditingController();
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  String? id;
-  String? firstName;
-  String? lastName;
-  String? email;
-  String? phoneNumber;
+  String id = "";
+  String firstName = "";
+  String lastName = "";
+  String email = "";
+  String phoneNumber = "";
   String role = 'student';
-  String? password;
-  String? response;
+  String password = "";
+  String response = "";
   final AuthService _authService = AuthService();
+  bool firstPage = true;
+  bool secondPage = false;
+  bool isLogin = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign Up')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextField(
-                controller: _idController,
-                decoration: const InputDecoration(
-                  labelText: 'ID',
-                  border: OutlineInputBorder(),
+        child: Center(
+          child: Container(
+            width: 650,
+            height: 454,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 0.5,
+                  blurRadius: 5,
+                  offset: const Offset(2, 1),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _firstNameController,
-                decoration: const InputDecoration(
-                  labelText: 'First Name',
-                  border: OutlineInputBorder(),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 219,
+                  height: 454,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(
+                          'https://images.unsplash.com/photo-1521790945508-bf2a36314e85?q=80&w=1934&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _lastNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Last Name',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _phoneNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: role,
-                decoration: const InputDecoration(
-                  labelText: 'Role',
-                  border: OutlineInputBorder(),
-                ),
-                items: <String>['student', 'librarian']
-                    .map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    role = newValue!;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () async{
-                  id = _idController.text;
-                  firstName = _firstNameController.text;
-                  lastName = _lastNameController.text;
-                  phoneNumber = _phoneNumberController.text;
-                  email = _emailController.text;
-                  password = _passwordController.text;
+                firstPage ? Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 25, right: 25),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Library Management System",
+                          style: TextStyle(
+                              color: AppColors.blueText,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          "Create an Account",
+                          style: TextStyle(
+                              color: AppColors.blueGrey,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w200),
+                        ),
+                        SizedBox(height: 25),
+                        Text(
+                          'Select User Type',
+                          style: TextStyle(fontSize: 14.0),
+                        ),
+                        SizedBox(height: 10),
+                        DropdownButtonFormField<String>(
+                          value: role,
+                          decoration: const InputDecoration(
+                            labelText: 'Role',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: <String>['student', 'librarian']
+                              .map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              role = newValue!;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 25),
+                        Text(
+                          "First name",
+                          style: TextStyle(color: Colors.black, fontSize: 14),
+                        ),
+                        SizedBox(height: 5),
+                        NameInput(
+                          hintText: 'First name',
+                          onChanged: (value) {
+                            setState(() {
+                              firstName = value;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 25),
+                        Text(
+                          "Last name",
+                          style: TextStyle(color: Colors.black, fontSize: 14),
+                        ),
+                        SizedBox(height: 5),
+                        LastNameInput(
+                          hintText: 'Last name',
+                          onChanged: (value) {
+                            setState(() {
+                              lastName = value;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 13),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                firstPage = false;
+                                secondPage = true;
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white,
+                            ),
+                            child: Text(
+                              'Next',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.blueAccent,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 13),
+                        TextButton(
+                          onPressed: () {
+                            context.go('/');
+                          },
+                          style: TextButton.styleFrom(
+                              backgroundColor: Colors.white),
+                          child: Text(
+                            'Aready have an account? Log In.',
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.blueAccent),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ) : secondPage ?
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 25, right: 25),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Enter Student ID/NRC",
+                          style: TextStyle(color: Colors.black, fontSize: 14),
+                        ),
+                        SizedBox(height: 5),
+                        IdInput(
+                          hintText: 'ID',
+                          onChanged: (value) {
+                            setState(() {
+                              id = value;
+                            });
+                          },
+                        ),
+                        Text(
+                          "Email address",
+                          style: TextStyle(color: Colors.black, fontSize: 14),
+                        ),
+                        SizedBox(height: 5),
+                        EmailInput(
+                          hintText: 'Email',
+                          onChanged: (value) {
+                            setState(() {
+                              email = value;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 13),
+                        Row(
+                          children: [
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    firstPage = true;
+                                    secondPage = false;
+                                  });
+                                },
+                                style: TextButton.styleFrom(
+                                    backgroundColor: Colors.white),
+                                child: Text(
+                                  'Back',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.blueAccent),
+                                ),
+                              ),
+                            ),
+                            Spacer(),
+                            Align(
+                              alignment: Alignment.bottomLeft,
+                              child: TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    firstPage = false;
+                                    secondPage = false;
+                                  });
+                                },
+                                style: TextButton.styleFrom(
+                                    backgroundColor: Colors.white),
+                                child: Text(
+                                  'Next',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.blueAccent),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                    :
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 25, right: 25),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Phone Number",
+                          style: TextStyle(color: Colors.black, fontSize: 14),
+                        ),
+                        SizedBox(height: 5),
+                        PhoneInput(
+                          hintText: 'Phone Number',
+                          onChanged: (value) {
+                            setState(() {
+                              phoneNumber = value;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          "Password",
+                          style: TextStyle(color: Colors.black, fontSize: 14),
+                        ),
+                        SizedBox(height: 5),
+                        PasswordInput(
+                          hintText: 'Password',
+                          onChanged: (value) {
+                            setState(() {
+                              password = value;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 13),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              secondPage = true;
+                            });
+                          },
+                          style: TextButton.styleFrom(
+                              backgroundColor: Colors.white),
+                          child: const Text(
+                            'Back',
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.blueAccent),
+                          ),
+                        ),
+                        const SizedBox(height: 13),
+                        isLogin ? const CircularProgressIndicator() : ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            backgroundColor: AppColors.blueButton,
+                            splashFactory: InkRipple.splashFactory,
+                          ),
+                          onPressed: () async {
+                            isLogin = true;
+                            // print(firstName+lastName+id+email+phoneNumber+role+password);
+                            try {
+                              // Call loginUser and wait for the result
+                              String loginResponse = await _authService.registerUser(
+                                  id,
+                                  firstName,
+                                  lastName,
+                                  email,
+                                  phoneNumber,
+                                  role,
+                                  password
+                              );
+                              response = loginResponse;
 
-                  try {
-                    // Call loginUser and wait for the result
-                    String loginResponse = await _authService.registerUser(
-                      id!,
-                      firstName!,
-                      lastName!,
-                      email!,
-                      phoneNumber!,
-                      role,
-                      password!
-                    );
-                    response = loginResponse;
+                              // Show success message in a SnackBar
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(loginResponse)),
+                              );
 
-                    // Show success message in a SnackBar
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(loginResponse)),
-                    );
+                              context.go('/home');
+                            } catch (e) {
+                              // Show error message in a SnackBar
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Error: $e")),
+                              );
+                            }
+                          },
+                          child: Text(
+                            'Create Account',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
 
-                    context.go('/home');
-                  } catch (e) {
-                    // Show error message in a SnackBar
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Error: $e")),
-                    );
-                  }
-                },
-                child: const Text('Sign Up'),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Navigate back to Login page
-                  context.go('/');
-                },
-                child: const Text('Already have an account? Login'),
-              ),
-            ],
-          ),
+            ),
+          )
         ),
       ),
     );

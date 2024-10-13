@@ -4,13 +4,15 @@ import 'package:library_web/widgets/add_book.dart';
 import 'package:library_web/widgets/view_books.dart';
 
 class Books extends StatefulWidget {
-  const Books({super.key});
+  final GlobalKey<BooksState>? key;
+
+  const Books({this.key}) : super(key: key);
 
   @override
-  State<Books> createState() => _BooksState();
+  State<Books> createState() => BooksState();
 }
 
-class _BooksState extends State<Books> {
+class BooksState extends State<Books> {
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
   bool addBook = false;
@@ -21,6 +23,12 @@ class _BooksState extends State<Books> {
     });
     // Add your search logic here, such as querying a database or API.
     print("Searching for: $_searchQuery");
+  }
+
+  void closeForm(){
+    setState(() {
+      addBook = false;
+    });
   }
 
   @override
@@ -75,9 +83,7 @@ class _BooksState extends State<Books> {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20), // Optional: Adjust padding
                 ),
                 onPressed: (){
-                  setState(() {
-                    addBook = false;
-                  });
+                  closeForm();
                 },
                 child: const Text(
                   'Close Form',

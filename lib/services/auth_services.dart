@@ -35,12 +35,14 @@ class AuthService{
           final jsonResponse = jsonDecode(response.body);
           print("response is: ${response.body}");
           prefs.setString('email', email);
+          prefs.setString('role', role);
           return jsonResponse['message'] ?? 'Account created successfully';
         } else {
           // Response is plain text, try to parse it manually (adjust parsing logic as needed)
           final plainTextResponse = response.body;
           print("response is: ${response.body}");
           prefs.setString('email', email);
+          prefs.setString('role', role);
           return plainTextResponse;
         }
       } else {
@@ -89,6 +91,7 @@ class AuthService{
           final jsonResponse = jsonDecode(response.body);
           print("response is: ${response.body}");
           prefs.setString('user_id', jsonResponse['user_id'].toString());
+          prefs.setString('role', jsonResponse['role']);
           return jsonResponse['message'] ?? 'Login successful';
         } else {
           // Response is plain text, try to parse it manually (adjust parsing logic as needed)

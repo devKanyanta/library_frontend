@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:go_router/go_router.dart';
 
+import 'books.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:library_web/services/book_services.dart';
@@ -12,6 +14,7 @@ class AddBook extends StatefulWidget {
 }
 
 class _AddBook extends State<AddBook> {
+  final GlobalKey<BooksState> _booksKey = GlobalKey<BooksState>();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _isbnController = TextEditingController();
@@ -25,7 +28,7 @@ class _AddBook extends State<AddBook> {
   final TextEditingController _authorLastNameController = TextEditingController();
   final TextEditingController _authorNationalityController = TextEditingController();
   final TextEditingController _authorDobController = TextEditingController();
-
+  bool isLoading = false;
   String? _selectedGenre;
   List<Genre> _genres = []; // Example genres
 
@@ -56,7 +59,9 @@ class _AddBook extends State<AddBook> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Scaffold(
       appBar: AppBar(
         title: const Text('Add New Book',
         style: TextStyle(
@@ -273,6 +278,7 @@ class _AddBook extends State<AddBook> {
   }
 
   void _submitBook() async{
+    isLoading = true;
     // Create a JSON object from form data
     final bookJson = {
       "title": _titleController.text,
@@ -306,6 +312,8 @@ class _AddBook extends State<AddBook> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response)),
       );
+      isLoading = false;
+      context.go('/');
 
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(
