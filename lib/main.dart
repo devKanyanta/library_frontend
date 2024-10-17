@@ -201,6 +201,10 @@ class _LoginState extends State<Login> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(content: Text("Error: $e")),
                                   );
+                                } finally {
+                                  setState(() {
+                                    isLogin = false;
+                                  });
                                 }
                               },
                               child: const Text(
@@ -572,6 +576,10 @@ class _SignUpPageState extends State<SignUpPage> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text("Error: $e")),
                               );
+                            } finally{
+                              setState(() {
+                                isLogin = false;
+                              });
                             }
                           },
                           child: Text(

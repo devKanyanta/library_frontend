@@ -34,6 +34,7 @@ class AuthService{
           // Response is JSON, decode it
           final jsonResponse = jsonDecode(response.body);
           print("response is: ${response.body}");
+          prefs.setString('user_id', jsonResponse['user_id'].toString());
           prefs.setString('email', email);
           prefs.setString('role', role);
           return jsonResponse['message'] ?? 'Account created successfully';
@@ -89,7 +90,7 @@ class AuthService{
         if (response.headers['content-type']?.contains('application/json') == true) {
           // Response is JSON, decode it
           final jsonResponse = jsonDecode(response.body);
-          print("response is: ${response.body}");
+          print("response is: ${jsonResponse}");
           prefs.setString('user_id', jsonResponse['user_id'].toString());
           prefs.setString('role', jsonResponse['role']);
           return jsonResponse['message'] ?? 'Login successful';

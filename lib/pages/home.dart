@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:library_web/utils/colors.dart';
 import 'package:library_web/widgets/books.dart';
+import 'package:library_web/widgets/get_loan.dart';
+import 'package:library_web/widgets/loans.dart';
+import 'package:library_web/widgets/loans_student.dart';
 import 'package:library_web/widgets/students.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -85,7 +89,7 @@ class DesktopView extends StatefulWidget {
 
 class _DesktopViewState extends State<DesktopView> {
   // Variable to keep track of the selected page
-  String selectedPage = 'Books';
+  String selectedPage = 'Choose';
   String role = "null";
 
   void determineRole() async {
@@ -113,7 +117,7 @@ class _DesktopViewState extends State<DesktopView> {
 
   @override
   Widget build(BuildContext context) {
-    if(role=="Student"){
+    if(role=="Librarian"){
       return Scaffold(
         body: Row(
           children: [
@@ -230,8 +234,123 @@ class _DesktopViewState extends State<DesktopView> {
           ],
         ),
       );
-    }else if (role == "Librarian"){
-      return Placeholder();
+    }else if (role == "Student"){
+      return Scaffold(
+        body: Row(
+          children: [
+            Drawer(
+              backgroundColor: Colors.blueAccent,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+              child: Container(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        children: <Widget>[
+                          Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(
+                                    top: 30, left: 18, bottom: 20),
+                                child: Text(
+                                  'Library Management',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.dashboard, color: Colors.white),
+                            title: const Text(
+                              'Get Loan',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedPage = 'getLoan';
+                              });
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.people, color: Colors.white),
+                            title: const Text(
+                              'Make reservation',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedPage = 'reservation';
+                              });
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.storage, color: Colors.white),
+                            title: const Text(
+                              'View Loans',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedPage = 'viewLoans';
+                              });
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.volunteer_activism_rounded, color: Colors.white),
+                            title: const Text(
+                              'View Fines',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedPage = 'viewFines';
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          ListTile(
+                            leading: Icon(Icons.logout, color: Colors.white),
+                            title: const Text(
+                              'Logout',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedPage = 'Logout';
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: getPageWidget(selectedPage),
+              ),
+            ),
+          ],
+        ),
+      );
     } else if(role == "null"){
       return const Center(
           child: CircularProgressIndicator()
@@ -249,9 +368,19 @@ class _DesktopViewState extends State<DesktopView> {
       case 'Students':
         return Students();
       case 'Loans':
-        return Text('Cluster Page Content', style: TextStyle(fontSize: 24));
+        return Loans();
       case 'Fines':
-        return Text('Active Element Page Content', style: TextStyle(fontSize: 24));
+        return Text('Fines', style: TextStyle(fontSize: 24));
+      case 'getLoan':
+        return GetLoan();
+      case 'reservation':
+        return Text('Reservation', style: TextStyle(fontSize: 24));
+      case 'viewFines':
+        return Text('View fines', style: TextStyle(fontSize: 24));
+      case 'viewLoans':
+        return StudentLoans();
+      case 'Choose':
+        return chooseOption();
       case 'Logout':
         return logout();
       default:
@@ -259,6 +388,24 @@ class _DesktopViewState extends State<DesktopView> {
     }
   }
 }
+
+class chooseOption extends StatelessWidget {
+  const chooseOption({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        'Choose from the options to your left',
+        style: TextStyle(
+          color: AppColors.blueBackground,
+          fontSize: 24
+        ),
+      ),
+    );
+  }
+}
+
 
 class logout extends StatefulWidget {
   const logout({super.key});

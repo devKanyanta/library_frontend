@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:library_web/widgets/book_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewBooks extends StatefulWidget {
   const ViewBooks({super.key});
@@ -49,11 +50,29 @@ class Book {
 class _ViewBooksState extends State<ViewBooks> {
   List<Book> books = [];
   bool isLoading = true;
+  bool isStudent = true;
+  String userId = '';
 
   @override
   void initState() {
     super.initState();
     fetchBooks();
+    determineRole();
+  }
+
+  void determineRole() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.get('user_id').toString();
+    if (prefs.get('role') == 'librarian') {
+      setState(() {
+        isStudent = false;
+      });
+    } else if (prefs.get('role') == "student") {
+      setState(() {
+        isStudent = true;
+      });
+    } else {
+    }
   }
 
   Future<void> fetchBooks() async {
@@ -88,7 +107,9 @@ class _ViewBooksState extends State<ViewBooks> {
               isbn: book.isbn,
               location: book.shelfLocation,
               copiesAvail: book.copiesAvailable,
-              id: book.id);
+              id: book.id,
+            isStudent: isStudent,
+            userId: userId,);
         },
       ),
     );
