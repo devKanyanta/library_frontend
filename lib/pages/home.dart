@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:library_web/utils/colors.dart';
 import 'package:library_web/widgets/books.dart';
+import 'package:library_web/widgets/fine_list.dart';
 import 'package:library_web/widgets/get_loan.dart';
 import 'package:library_web/widgets/loans.dart';
 import 'package:library_web/widgets/loans_student.dart';
+import 'package:library_web/widgets/reservations.dart';
+import 'package:library_web/widgets/reservations_lib.dart';
 import 'package:library_web/widgets/students.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -91,9 +94,11 @@ class _DesktopViewState extends State<DesktopView> {
   // Variable to keep track of the selected page
   String selectedPage = 'Choose';
   String role = "null";
+  String userId = '';
 
   void determineRole() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.get('user_id').toString();
     if (prefs.get('role') == 'librarian') {
       print("Librarian");
       setState(() {
@@ -184,6 +189,18 @@ class _DesktopViewState extends State<DesktopView> {
                             onTap: () {
                               setState(() {
                                 selectedPage = 'Loans';
+                              });
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.storage, color: Colors.white),
+                            title: const Text(
+                              'Reservations',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedPage = 'Reserv';
                               });
                             },
                           ),
@@ -370,13 +387,15 @@ class _DesktopViewState extends State<DesktopView> {
       case 'Loans':
         return Loans();
       case 'Fines':
-        return Text('Fines', style: TextStyle(fontSize: 24));
+        return FineListScreen(role: role);
       case 'getLoan':
         return GetLoan();
       case 'reservation':
-        return Text('Reservation', style: TextStyle(fontSize: 24));
+        return Reservations(userId: userId,);
+      case 'Reserv':
+        return ReservationListScreen();
       case 'viewFines':
-        return Text('View fines', style: TextStyle(fontSize: 24));
+        return FineListScreen(role: role,);
       case 'viewLoans':
         return StudentLoans();
       case 'Choose':
